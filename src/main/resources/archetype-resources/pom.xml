@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>${groupId}</groupId>
+  <artifactId>${artifactId}</artifactId>
+  <version>${version}</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <dbflute-version>${dbflute-version}</dbflute-version>
+#if (${targetContainer} == "seasar")
+    <S2Container.version>${container-version}</S2Container.version>
+#end
+#if (${targetContainer} == "spring")
+    <spring.version>${container-version}</spring.version>
+#end
+#if (${targetContainer} == "guice")
+    <guice.version>${container-version}</guice.version>
+#end
+#if (${targetContainer} == "lucy")
+    <lucy.version>${container-version}</lucy.version>
+#end
+#if (${database} == "h2")
+    <h2.jdbc.version>1.3.163</h2.jdbc.version>
+#end
+#if (${database} == "mysql")
+    <mysql.jdbc.version>5.1.12</mysql.jdbc.version>
+#end
+#if (${database} == "postgresql")
+    <postgresql.jdbc.version>9.1-901.jdbc3</postgresql.jdbc.version>
+#end
+#if (${database} == "oracle")
+    <!--
+    <oracle.jdbc.path>${project.basedir}/dbflute_${clientProject}/extlib/ojdbc6.jar</oracle.jdbc.path>
+    -->
+#end
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <id>source-jar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.5.1	</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <source>1.6</source>
+            <target>1.6</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.seasar.dbflute</groupId>
+          <artifactId>maven-dbflute-plugin</artifactId>
+          <version>0.4.0</version>
+          <configuration>
+            <dbfluteVersion>\${dbflute-version}</dbfluteVersion>
+            <schemaName>${clientProject}</schemaName>
+            <targetContainer>${targetContainer}</targetContainer>
+            <database>${database}</database>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.seasar.dbflute</groupId>
+      <artifactId>dbflute-runtime</artifactId>
+      <version>\${dbflute-version}</version>
+    </dependency>
+#if (${targetContainer} == "seasar")
+    <dependency>
+      <groupId>org.seasar.container</groupId>
+      <artifactId>s2-tiger</artifactId>
+      <version>${S2Container.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.easymock</groupId>
+          <artifactId>easymock</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+#end
+#if (${targetContainer} == "spring")
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-dbcp</groupId>
+      <artifactId>commons-dbcp</artifactId>
+      <version>1.3</version>
+    </dependency>
+#end
+#if (${targetContainer} == "guice")
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>${guice.version}</version>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>com.atomikos</groupId>
+      <artifactId>transactions</artifactId>
+      <version>3.3.4</version>
+    </dependency>
+    -->
+    <!-- multi thread problem fixed but JDBC driver problem
+    <dependency>
+      <groupId>com.atomikos</groupId>
+      <artifactId>transactions</artifactId>
+      <version>3.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atomikos</groupId>
+      <artifactId>transactions-jdbc</artifactId>
+      <version>3.8.0</version>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jta_1.1_spec</artifactId>
+      <version>1.0</version>
+      <scope>runtime</scope>
+    </dependency>
+#end
+#if (${targetContainer} == "lucy")
+    <dependency>
+      <groupId>org.t2framework.ioc</groupId>
+      <artifactId>lucy</artifactId>
+      <version>${lucy.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.t2framework.ioc</groupId>
+      <artifactId>lucy-tx-interceptor</artifactId>
+      <version>${lucy.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.atomikos</groupId>
+          <artifactId>transactions-essentials-all</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>com.atomikos</groupId>
+      <artifactId>transactions</artifactId>
+      <version>3.3.4</version>
+    </dependency>
+    -->
+    <!-- multi thread problem fixed but JDBC driver problem
+    <dependency>
+      <groupId>com.atomikos</groupId>
+      <artifactId>transactions</artifactId>
+      <version>3.8.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.atomikos</groupId>
+      <artifactId>transactions-jdbc</artifactId>
+      <version>3.8.0</version>
+    </dependency>
+    -->
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jta_1.1_spec</artifactId>
+      <version>1.0</version>
+      <scope>runtime</scope>
+    </dependency>
+#end
+#if (${database} == "h2")
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${h2.jdbc.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+#end
+#if (${database} == "mysql")
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql.jdbc.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+#end
+#if (${database} == "postgresql")
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgresql.jdbc.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+#end
+#if (${database} == "oracle")
+    <!-- 
+    <dependency>
+      <groupId>oracle</groupId>
+      <artifactId>ojdbc</artifactId>
+      <version>6</version>
+      <scope>system</scope> <!-- runtime -->
+      <systemPath>${oracle.jdbc.path}</systemPath>
+      <optional>true</optional>
+    </dependency>
+    -->
+#end
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.14</version>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+
+  <repositories>
+    <repository>
+      <id>maven.seasar.org</id>
+      <name>The Seasar Foundation Maven2 Repository</name>
+      <url>http://maven.seasar.org/maven2</url>
+    </repository>
+#if (${targetContainer} == "lucy")
+    <repository>
+      <id>maven.t2framework.org</id>
+      <name>The T2 Project Maven2 Repository</name>
+      <url>http://maven.t2framework.org/maven2</url>
+    </repository>
+#end
+  </repositories>
+
+  <profiles>
+    <profile>
+      <id>create-dbflute-client</id>
+      <activation>
+        <file>
+          <missing>${project.basedir}/mydbflute</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.seasar.dbflute</groupId>
+            <artifactId>maven-dbflute-plugin</artifactId>
+            <version>0.4.0</version>
+            <executions>
+              <execution>
+                <id>download-dbflute-module</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>download</goal>
+                  <goal>create-client</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>maven.seasar.org</id>
+          <name>The Seasar Foundation Maven2 Repository</name>
+          <url>http://maven.seasar.org/maven2/</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+</project>
