@@ -8,18 +8,19 @@
   <packaging>jar</packaging>
 
   <properties>
-    <dbflute-version>${dbflute-version}</dbflute-version>
-#if (${targetContainer} == "seasar")
-    <S2Container.version>${container-version}</S2Container.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <dbflute-version>${dbfluteVersion}</dbflute-version>
+#if (${container} == "seasar")
+    <S2Container.version>${containerVersion}</S2Container.version>
 #end
-#if (${targetContainer} == "spring")
-    <spring.version>${container-version}</spring.version>
+#if (${container} == "spring")
+    <spring.version>${containerVersion}</spring.version>
 #end
-#if (${targetContainer} == "guice")
-    <guice.version>${container-version}</guice.version>
+#if (${container} == "guice")
+    <guice.version>${containerVersion}</guice.version>
 #end
-#if (${targetContainer} == "lucy")
-    <lucy.version>${container-version}</lucy.version>
+#if (${container} == "cdi")
+    <cdi.version>${containerVersion}</cdi.version>
 #end
 #if (${database} == "h2")
     <h2.jdbc.version>1.3.163</h2.jdbc.version>
@@ -35,13 +36,14 @@
     <oracle.jdbc.path>${project.basedir}/dbflute_${clientProject}/extlib/ojdbc6.jar</oracle.jdbc.path>
     -->
 #end
+    <slf4j.version>1.6.1</slf4j.version>
   </properties>
 
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-source-plugin</artifactId>
-        <version>2.2</version>
+        <version>2.2.1</version>
         <executions>
           <execution>
             <id>source-jar</id>
@@ -57,7 +59,7 @@
       <plugins>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.5.1	</version>
+          <version>3.1</version>
           <configuration>
             <encoding>UTF-8</encoding>
             <source>1.6</source>
@@ -66,12 +68,12 @@
         </plugin>
         <plugin>
           <groupId>org.seasar.dbflute</groupId>
-          <artifactId>maven-dbflute-plugin</artifactId>
-          <version>0.4.0</version>
+          <artifactId>dbflute-maven-plugin</artifactId>
+          <version>1.0.2</version>
           <configuration>
-            <dbfluteVersion>\${dbflute-version}</dbfluteVersion>
-            <schemaName>${clientProject}</schemaName>
-            <targetContainer>${targetContainer}</targetContainer>
+            <dbfluteVersion>${dbflute-version}</dbfluteVersion>
+            <clientProject>${clientProject}</clientProject>
+            <targetContainer>${container}</targetContainer>
             <database>${database}</database>
           </configuration>
         </plugin>
@@ -83,9 +85,21 @@
     <dependency>
       <groupId>org.seasar.dbflute</groupId>
       <artifactId>dbflute-runtime</artifactId>
-      <version>\${dbflute-version}</version>
+      <version>${dbflute-version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>log4j</artifactId>
+          <groupId>log4j</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
-#if (${targetContainer} == "seasar")
+
+    <!-- container -->
+#if (${container} == "seasar")
     <dependency>
       <groupId>org.seasar.container</groupId>
       <artifactId>s2-tiger</artifactId>
@@ -98,7 +112,7 @@
       </exclusions>
     </dependency>
 #end
-#if (${targetContainer} == "spring")
+#if (${container} == "spring")
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring</artifactId>
@@ -110,7 +124,7 @@
       <version>1.3</version>
     </dependency>
 #end
-#if (${targetContainer} == "guice")
+#if (${container} == "guice")
     <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
@@ -142,49 +156,16 @@
       <scope>runtime</scope>
     </dependency>
 #end
-#if (${targetContainer} == "lucy")
+#if (${container} == "cdi")
     <dependency>
-      <groupId>org.t2framework.ioc</groupId>
-      <artifactId>lucy</artifactId>
-      <version>${lucy.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.t2framework.ioc</groupId>
-      <artifactId>lucy-tx-interceptor</artifactId>
-      <version>${lucy.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.atomikos</groupId>
-          <artifactId>transactions-essentials-all</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <!--
-    <dependency>
-      <groupId>com.atomikos</groupId>
-      <artifactId>transactions</artifactId>
-      <version>3.3.4</version>
-    </dependency>
-    -->
-    <!-- multi thread problem fixed but JDBC driver problem
-    <dependency>
-      <groupId>com.atomikos</groupId>
-      <artifactId>transactions</artifactId>
-      <version>3.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.atomikos</groupId>
-      <artifactId>transactions-jdbc</artifactId>
-      <version>3.8.0</version>
-    </dependency>
-    -->
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-jta_1.1_spec</artifactId>
-      <version>1.0</version>
-      <scope>runtime</scope>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <version>${cdi.version}</version>
+      <scope>provided</scope>
     </dependency>
 #end
+
+    <!-- database -->
 #if (${database} == "h2")
     <dependency>
       <groupId>com.h2database</groupId>
@@ -210,23 +191,52 @@
     </dependency>
 #end
 #if (${database} == "oracle")
-    <!-- 
+    <!--
     <dependency>
       <groupId>oracle</groupId>
       <artifactId>ojdbc</artifactId>
       <version>6</version>
-      <scope>system</scope> <!-- runtime -->
+      <scope>system</scope>
       <systemPath>${oracle.jdbc.path}</systemPath>
       <optional>true</optional>
     </dependency>
     -->
 #end
+
+    <!-- logger -->
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.14</version>
-      <scope>runtime</scope>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-ext</artifactId>
+      <version>${slf4j.version}</version>
+      <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>${slf4j.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>0.9.28</version>
+      <type>jar</type>
+    </dependency>
+
+    <!-- test -->
+    <dependency>
+      <groupId>org.seasar.junitcdi</groupId>
+      <artifactId>junitcdi-jta</artifactId>
+      <version>0.0.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <repositories>
@@ -235,13 +245,6 @@
       <name>The Seasar Foundation Maven2 Repository</name>
       <url>http://maven.seasar.org/maven2</url>
     </repository>
-#if (${targetContainer} == "lucy")
-    <repository>
-      <id>maven.t2framework.org</id>
-      <name>The T2 Project Maven2 Repository</name>
-      <url>http://maven.t2framework.org/maven2</url>
-    </repository>
-#end
   </repositories>
 
   <profiles>
@@ -256,14 +259,19 @@
         <plugins>
           <plugin>
             <groupId>org.seasar.dbflute</groupId>
-            <artifactId>maven-dbflute-plugin</artifactId>
-            <version>0.4.0</version>
+            <artifactId>dbflute-maven-plugin</artifactId>
             <executions>
               <execution>
                 <id>download-dbflute-module</id>
                 <phase>generate-sources</phase>
                 <goals>
                   <goal>download</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>create-client-dbflute-module</id>
+                <phase>process-sources</phase>
+                <goals>
                   <goal>create-client</goal>
                 </goals>
               </execution>

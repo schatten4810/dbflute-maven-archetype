@@ -5,19 +5,13 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <requiredProperties>
-    <requiredProperty key="dbflute-version">
-      <defaultValue>1.0.0</defaultValue>
-    </requiredProperty>
+    <requiredProperty key="dbfluteVersion"/>
     <requiredProperty key="clientProject">
+      <defaultValue>${artifactId}</defaultValue>
     </requiredProperty>
-    <requiredProperty key="database">
-    </requiredProperty>
-    <requiredProperty key="targetContainer">
-      <defaultValue>seasar</defaultValue>
-    </requiredProperty>
-    <requiredProperty key="container-version">
-      <defaultValue>2.4.46</defaultValue>
-    </requiredProperty>
+    <requiredProperty key="database"/>
+    <requiredProperty key="container"/>
+    <requiredProperty key="containerVersion"/>
   </requiredProperties>
 
   <fileSets>
