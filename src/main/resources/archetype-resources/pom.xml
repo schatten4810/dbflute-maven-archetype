@@ -77,6 +77,34 @@
             <database>${database}</database>
           </configuration>
         </plugin>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.seasar.dbflute</groupId>
+                    <artifactId>
+                      dbflute-maven-plugin
+                    </artifactId>
+                    <versionRange>[1.0.0,)</versionRange>
+                    <goals>
+                      <goal>download</goal>
+                      <goal>create-client</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
@@ -249,13 +277,14 @@
 
   <profiles>
     <profile>
-      <id>create-dbflute-client</id>
+      <id>init-dbflute</id>
       <activation>
         <file>
-          <missing>${project.basedir}/mydbflute</missing>
+          <missing>${project.basedir}/dbflute_${clientProject}</missing>
         </file>
       </activation>
       <build>
+        <defaultGoal>process-resources</defaultGoal>
         <plugins>
           <plugin>
             <groupId>org.seasar.dbflute</groupId>
