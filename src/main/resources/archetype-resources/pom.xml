@@ -112,7 +112,7 @@
 #if (${database} == "oracle")
             <databaseDriver>oracle.jdbc.OracleDriver</databaseDriver>
             <databaseUrl>df:dfprop/local-url.txt|jdbc:oracle:thin:@localhost:1521:XE</databaseUrl>
-            <databaseSchema>${clientProject.toUpperCase}</databaseSchema>
+            <databaseSchema>${clientProject.toUpperCase()}</databaseSchema>
             <databaseUser>df:dfprop/local-user.txt|${clientProject}</databaseUser>
             <databasePassword>df:dfprop/local-password.txt|${clientProject}</databasePassword>
 #end
