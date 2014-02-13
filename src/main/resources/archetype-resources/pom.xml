@@ -29,12 +29,22 @@
     <mysql.jdbc.version>5.1.12</mysql.jdbc.version>
 #end
 #if (${database} == "postgresql")
-    <postgresql.jdbc.version>9.1-901.jdbc3</postgresql.jdbc.version>
+    <postgresql.jdbc.version>9.1-901.jdbc4</postgresql.jdbc.version>
 #end
 #if (${database} == "oracle")
-    <!--
-    <oracle.jdbc.path>${project.basedir}/dbflute_${clientProject}/extlib/ojdbc6.jar</oracle.jdbc.path>
-    -->
+    <oracle.jdbc.version>6</oracle.jdbc.version>
+    <oracle.jdbc.path>${basedir}/dbflute_${clientProject}/extlib/ojdbc6.jar</oracle.jdbc.path>
+#end
+#if (${database} == "sqlite")
+    <sqlite.jdbc.version>3.7.2</sqlite.jdbc.version>
+#end
+#if (${database} == "sqlserver")
+    <mssql.jdbc.version>1.0.0</mssql.jdbc.version>
+    <mssql.jdbc.path>${basedir}/lib/sqljdbc4.jar</mssql.jdbc.path>
+#end
+#if (${database} == "db2")
+    <db2.jdbc.version>1.0.0</db2.jdbc.version>
+    <db2.jdbc.path>${basedir}/lib/db2jcc.jar</db2.jdbc.path>
 #end
     <slf4j.version>1.6.1</slf4j.version>
   </properties>
@@ -67,6 +77,15 @@
           </configuration>
         </plugin>
         <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.9.1</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <docencoding>UTF-8</docencoding>
+            <charset>UTF-8</charset>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>org.seasar.dbflute</groupId>
           <artifactId>dbflute-maven-plugin</artifactId>
           <version>1.0.2</version>
@@ -75,6 +94,49 @@
             <clientProject>${clientProject}</clientProject>
             <targetContainer>${container}</targetContainer>
             <database>${database}</database>
+            <rootPackage>${package}</rootPackage>
+            <dbPackage>${package}</dbPackage>
+#if (${database} == "mysql")
+            <databaseDriver>com.mysql.jdbc.Driver</databaseDriver>
+            <databaseUrl>df:dfprop/local-url.txt|jdbc:mysql://localhost:43306/${clientProject}?characterEncoding=UTF-8</databaseUrl>
+            <databaseUser>df:dfprop/local-user.txt|${clientProject}</databaseUser>
+            <databasePassword>df:dfprop/local-password.txt|${clientProject}</databasePassword>
+#end
+#if (${database} == "postgresql")
+            <databaseDriver>org.postgresql.Driver</databaseDriver>
+            <databaseUrl>df:dfprop/local-url.txt|jdbc:postgresql://localhost:5432/${clientProject}</databaseUrl>
+            <databaseSchema>public</databaseSchema>
+            <databaseUser>df:dfprop/local-user.txt|${clientProject}</databaseUser>
+            <databasePassword>df:dfprop/local-password.txt|${clientProject}</databasePassword>
+#end
+#if (${database} == "oracle")
+            <databaseDriver>oracle.jdbc.OracleDriver</databaseDriver>
+            <databaseUrl>df:dfprop/local-url.txt|jdbc:oracle:thin:@localhost:1521:XE</databaseUrl>
+            <databaseSchema>${clientProject.toUpperCase}</databaseSchema>
+            <databaseUser>df:dfprop/local-user.txt|${clientProject}</databaseUser>
+            <databasePassword>df:dfprop/local-password.txt|${clientProject}</databasePassword>
+#end
+#if (${database} == "msaccess")
+            <databaseDriver>sun.jdbc.odbc.JdbcOdbcDriver</databaseDriver>
+            <databaseUrl>jdbc:odbc:${clientProject}</databaseUrl>
+#end
+#if (${database} == "sqlite")
+            <databaseDriver>org.sqlite.JDBC</databaseDriver>
+            <databaseUrl>jdbc:sqlite:../src/main/resources/${clientProject}/${clientProject}.db</databaseUrl>
+#end
+#if (${database} == "sqlserver")
+            <databaseDriver>com.microsoft.sqlserver.jdbc.SQLServerDriver</databaseDriver>
+            <databaseUrl>df:dfprop/local-url.txt|jdbc:sqlserver://localhost:1433;databaseName=${clientProject};</databaseUrl>
+            <databaseSchema>dbo</databaseSchema>
+            <databaseUser>df:dfprop/local-user.txt|${clientProject}</databaseUser>
+            <databasePassword>df:dfprop/local-password.txt|${clientProject}</databasePassword>
+#end
+#if (${database} == "db2")
+            <databaseDriver>com.ibm.db2.jcc.DB2Driver</databaseDriver>
+            <databaseUrl>df:dfprop/local-url.txt|jdbc:db2://localhost:50002/${clientProject}</databaseUrl>
+            <databaseUser>df:dfprop/local-user.txt|${clientProject}</databaseUser>
+            <databasePassword>df:dfprop/local-password.txt|${clientProject}</databasePassword>
+#end
           </configuration>
         </plugin>
         <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
@@ -88,9 +150,7 @@
                 <pluginExecution>
                   <pluginExecutionFilter>
                     <groupId>org.seasar.dbflute</groupId>
-                    <artifactId>
-                      dbflute-maven-plugin
-                    </artifactId>
+                    <artifactId>dbflute-maven-plugin</artifactId>
                     <versionRange>[1.0.0,)</versionRange>
                     <goals>
                       <goal>download</goal>
@@ -219,13 +279,45 @@
     </dependency>
 #end
 #if (${database} == "oracle")
-    <!--
+    <!-- for System
     <dependency>
       <groupId>oracle</groupId>
       <artifactId>ojdbc</artifactId>
-      <version>6</version>
+      <version>${oracle.jdbc.version}</version>
       <scope>system</scope>
       <systemPath>${oracle.jdbc.path}</systemPath>
+      <optional>true</optional>
+    </dependency>
+    -->
+#end
+#if (${database} == "sqlite")
+    <dependency>
+      <groupId>org.sqlite</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>${sqlite.jdbc.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+#end
+#if (${database} == "sqlserver")
+    <!-- for System
+    <dependency>
+      <groupId>sqljdbc</groupId>
+      <artifactId>sqljdbc</artifactId>
+      <version>${mssql.jdbc.version}</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/sqljdbc4.jar</systemPath>
+      <optional>true</optional>
+    </dependency>
+    -->
+#end
+#if (${database} == "db2")
+    <!-- for System
+    <dependency>
+      <groupId>db2jcc</groupId>
+      <artifactId>db2jcc</artifactId>
+      <version>${db2.jdbc.version}</version>
+      <scope>system</scope>
+      <systemPath>${db2.jdbc.path}</systemPath>
       <optional>true</optional>
     </dependency>
     -->
